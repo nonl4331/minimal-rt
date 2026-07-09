@@ -6,6 +6,12 @@ pub struct World {
     pub materials: Vec<Material>,
 }
 
+impl World {
+    pub fn new(objects: Vec<Sphere>, materials: Vec<Material>) -> Self {
+        Self { objects, materials }
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq, Default)]
 #[repr(C)]
 pub struct Vec3 {

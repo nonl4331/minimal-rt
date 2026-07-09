@@ -15,7 +15,8 @@ impl Naive {
             let sect = get_intersection(&ray, world);
 
             if sect.is_none() {
-                rgb += tp * Vec3::ZERO;
+                let a = 0.5 * (ray.dir.y + 1.0);
+                rgb += tp * (a * Vec3::new(0.5, 0.7, 1.0) + (1.0 - a) * Vec3::ONE);
                 break;
             }
 
@@ -43,7 +44,7 @@ fn get_intersection(ray: &Ray, world: &World) -> Intersection {
     let mut int = Intersection::NONE;
     for s in &world.objects {
         let new_int = s.get_intersection(ray);
-        if int.is_none() || new_int.t <= int.t {
+        if int.is_none() || new_int.t <= int.t && new_int.t > 0.0 {
             int = new_int;
         }
     }

@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+const EP: f32 = 0.00001;
+
 pub enum Material {
     Lambertian(Lambertian),
     Metal(Metal),
@@ -28,8 +30,11 @@ pub struct Lambertian {
 }
 
 impl Lambertian {
+    pub fn new(albedo: Vec3) -> Self {
+        Self { albedo }
+    }
     pub fn scatter(ray: &mut Ray, sect: &Intersection, rng: &mut impl Rng) {
-        *ray = Ray::new(sect.pos, sect.nor + random_unit_vec(rng));
+        *ray = Ray::new(sect.pos + sect.nor * EP, sect.nor + random_unit_vec(rng));
     }
 }
 
