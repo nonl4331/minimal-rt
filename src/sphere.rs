@@ -15,26 +15,19 @@ impl Sphere {
         }
     }
     pub fn get_intersection(&self, ray: &Ray) -> Intersection {
-        let deltap = self.centre - ray.origin;
-        let ddp = ray.dir.dot(deltap);
-        let deltapdot = deltap.dot(deltap);
+        let oc = self.centre - ray.origin;
+        let a = ray.dir.mag_sq();
+        let h = ray.dir.dot(oc);
+        let c = oc.mag_sq() - self.radius * self.radius;
 
-        let remedy_term = deltap - ddp * ray.dir;
-        let discriminant = self.radius * self.radius - remedy_term.dot(remedy_term);
+        let disc = h * h - a * c;
 
-        if discriminant <= 0.0 {
+        if disc < 0.0 {
             return Intersection::NONE;
         }
-        let sqrt_val = discriminant.sqrt();
 
-        let q = if ddp > 0.0 {
-            ddp + sqrt_val
-        } else {
-            ddp - sqrt_val
-        };
-
-        let mut t0 = q;
-        let mut t1 = (deltapdot - self.radius * self.radius) / q;
+        let mut t0 = (h - disc.sqrt()) / a;
+        let mut t1 = (h + disc.sqrt()) / a;
 
         if t1 < t0 {
             std::mem::swap(&mut t0, &mut t1);
@@ -42,10 +35,9 @@ impl Sphere {
 
         let t = if t0 > 0.0 {
             t0
+        } else if t1 <= 0.0 {
+            return Intersection::NONE;
         } else {
-            if t1 <= 0.0 {
-                return Intersection::NONE;
-            }
             t1
         };
 
