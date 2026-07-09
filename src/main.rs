@@ -13,10 +13,11 @@ mod prelude {
 }
 
 use prelude::*;
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
-const WIDTH: usize = 1200;
-const HEIGHT: usize = 675;
-const SAMPLES: usize = 10;
+const WIDTH: usize = 1920;
+const HEIGHT: usize = 1080;
+const SAMPLES: usize = 500;
 
 fn main() {
     let mut mats = vec![
@@ -74,30 +75,33 @@ fn main() {
         HEIGHT,
     );
 
-    let mut img = vec![Vec3::ZERO; WIDTH * HEIGHT];
-    let mut rays = 0;
     let start = std::time::Instant::now();
-    for (i, px) in img.iter_mut().enumerate() {
-        let mut col = Vec3::zero();
-        for _ in 0..SAMPLES {
-            let ray = cam.get_ray(i as u64, &mut rng);
-            let (ncol, depth) = integrator::Naive::rgb(ray, &world, &mut rng);
-            col += ncol;
-            rays += depth;
-        }
-        col /= SAMPLES as f32;
-        *px = col
-    }
+    let pixels: Vec<(Vec3, u64)> = (0..WIDTH * HEIGHT)
+        .into_par_iter()
+        .map(|i| {
+            let mut col = Vec3::ZERO;
+            let mut rays = 0;
+            let mut rng = rand::rng();
+            for _ in 0..SAMPLES {
+                let ray = cam.get_ray(i as u64, &mut rng);
+                let (scol, sdepth) = integrator::Naive::rgb(ray, &world, &mut rng);
+                col += scol;
+                rays += sdepth;
+            }
+            (col / SAMPLES as f32, rays)
+        })
+        .collect();
     let render_time = start.elapsed();
+    let rays: u64 = pixels.iter().map(|v| v.1).sum();
     println!("took {} seconds", render_time.as_secs_f64());
     println!(
         "{rays} rays @ {:.2} MRay/s",
         (1e-6 * rays as f64) / render_time.as_secs_f64()
     );
-    save_image("test.png", &img, WIDTH);
+    save_image("test.png", &pixels, WIDTH);
 }
 
-fn save_image(name: &str, img: &[Vec3], width: usize) {
+fn save_image(name: &str, img: &[(Vec3, u64)], width: usize) {
     let height = img.len() / width;
 
     let mut imgbuf = image::ImageBuffer::new(width as u32, height as u32);
@@ -105,7 +109,7 @@ fn save_image(name: &str, img: &[Vec3], width: usize) {
     let to_u8 = |v: f32| -> u8 { (v.powf(1.0 / 2.2) * 255.999) as u8 };
 
     for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
-        let rgb = img[x as usize + width * y as usize];
+        let rgb = img[x as usize + width * y as usize].0;
         *pixel = image::Rgb([to_u8(rgb.x), to_u8(rgb.y), to_u8(rgb.z)]);
     }
 

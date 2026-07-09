@@ -37,7 +37,7 @@ impl Cam {
         let defocus_r = focus_dist * (0.5 * defocus_angle).to_radians().tan();
 
         let disk_right = right * defocus_r;
-        let disk_up = right * defocus_r;
+        let disk_up = up * defocus_r;
 
         Self {
             lower_left,
