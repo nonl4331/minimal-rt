@@ -79,9 +79,7 @@ impl Dielectric {
 
         let cosi = wo.dot(sect.nor);
 
-        let r = fresnel_dielectric(eta1, eta2, sect.nor, wo);
-
-        if r >= rng.random() {
+        if shlick_fresnel(eta, cosi) >= rng.random() {
             let wi = wo.reflected(sect.nor);
             *ray = Ray::new(sect.pos + sect.nor * EP, wi);
             return;
@@ -107,23 +105,14 @@ fn random_unit_vec(rng: &mut impl Rng) -> Vec3 {
         }
     }
 }
-
-// eta1 = outer ior, eta2 = inner ior
-pub fn fresnel_dielectric(eta1: f32, eta2: f32, nor: Vec3, wo: Vec3) -> f32 {
-    let eta = eta1 / eta2;
-
-    let cosi = wo.dot(nor);
-
+pub fn shlick_fresnel(eta: f32, cosi: f32) -> f32 {
     let sint_sq = eta.powi(2) * (1.0 - cosi.powi(2));
     let is_tir = sint_sq >= 1.0;
     if is_tir {
         return 1.0;
     }
 
-    let cost = (1.0 - sint_sq).sqrt();
-
-    let rs = ((eta1 * cosi - eta2 * cost) / (eta1 * cosi + eta2 * cost)).powi(2);
-    let rp = ((eta1 * cost - eta2 * cosi) / (eta1 * cost + eta2 * cosi)).powi(2);
-
-    0.5 * (rs + rp)
+    let r0 = (1.0 - eta) / (1.0 + eta);
+    let r0 = r0 * r0;
+    r0 + (1.0 - r0) * (1.0 - cosi).powi(5)
 }

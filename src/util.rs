@@ -31,7 +31,6 @@ pub struct Vec2 {
 pub struct Ray {
     pub origin: Vec3,
     pub dir: Vec3,
-    pub inv_dir: Vec3,
 }
 
 impl Ray {
@@ -40,7 +39,6 @@ impl Ray {
         Self {
             origin,
             dir,
-            inv_dir: Vec3::new(1.0 / dir.x, 1.0 / dir.y, 1.0 / dir.z),
         }
     }
 }
@@ -481,11 +479,5 @@ impl Intersection {
     #[must_use]
     pub fn is_none(&self) -> bool {
         self.t == -1.0
-    }
-
-    pub fn min(&mut self, other: Self) {
-        if self.is_none() || (other.t < self.t && other.t > 0.0) {
-            *self = other;
-        }
     }
 }
