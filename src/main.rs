@@ -1,5 +1,14 @@
+mod mat;
 mod util;
-use util::*;
+mod integrator;
+
+mod prelude {
+    pub use crate::util::*;
+    pub use crate::mat::*;
+    pub use rand::{Rng, RngExt};
+}
+
+use prelude::*;
 
 fn main() {
     let mut img = vec![Vec3::ZERO; 1024 * 1024];

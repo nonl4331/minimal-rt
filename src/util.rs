@@ -1,4 +1,10 @@
+use crate::prelude::*;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign};
+
+pub struct World {
+    pub objects: Vec<()>,
+    pub materials: Vec<Material>,
+}
 
 #[derive(Copy, Clone, Debug, PartialEq, Default)]
 #[repr(C)]
@@ -434,6 +440,46 @@ impl Index<usize> for Vec3 {
             1 => &self.y,
             2 => &self.z,
             _ => unreachable!(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Intersection {
+    pub t: f32,
+    pub pos: Vec3,
+    pub nor: Vec3,
+    pub out: bool,
+    pub mat: usize,
+}
+
+impl Intersection {
+    pub const NONE: Self = Self {
+        t: -1.0,
+        pos: Vec3::ZERO,
+        nor: Vec3::ZERO,
+        out: false,
+        mat: 0,
+    };
+
+    pub const fn new(t: f32, pos: Vec3, nor: Vec3, out: bool, mat: usize) -> Self {
+        Self {
+            t,
+            pos,
+            nor,
+            out,
+            mat,
+        }
+    }
+
+    #[must_use]
+    pub fn is_none(&self) -> bool {
+        self.t == -1.0
+    }
+
+    pub fn min(&mut self, other: Self) {
+        if self.is_none() || (other.t < self.t && other.t > 0.0) {
+            *self = other;
         }
     }
 }
