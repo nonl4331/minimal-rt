@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-const EP: f32 = 0.0001;
+const EP: f32 = 0.001;
 
 pub enum Material {
     Lambertian(Lambertian),
@@ -54,7 +54,7 @@ impl Metal {
         let wo = -ray.dir;
 
         let wi = wo.reflected(sect.nor) + (self.fuzz * random_unit_vec(rng));
-        *ray = Ray::new(sect.pos, wi);
+        *ray = Ray::new(sect.pos + sect.nor * EP, wi);
     }
 }
 
@@ -83,14 +83,14 @@ impl Dielectric {
 
         if r >= rng.random() {
             let wi = wo.reflected(sect.nor);
-            *ray = Ray::new(sect.pos, wi);
+            *ray = Ray::new(sect.pos + sect.nor * EP, wi);
             return;
         }
 
         let perp = eta * (cosi * sect.nor - wo);
         let para = -(1.0 - perp.mag_sq()).abs().sqrt() * sect.nor;
         let wi = perp + para;
-        *ray = Ray::new(sect.pos, wi);
+        *ray = Ray::new(sect.pos - sect.nor * EP, wi);
     }
 }
 
