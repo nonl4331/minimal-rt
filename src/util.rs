@@ -2,7 +2,7 @@ use crate::prelude::*;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign};
 
 pub struct World {
-    pub objects: Vec<()>,
+    pub objects: Vec<Sphere>,
     pub materials: Vec<Material>,
 }
 

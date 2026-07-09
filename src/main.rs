@@ -1,10 +1,12 @@
 mod mat;
 mod util;
 mod integrator;
+mod sphere;
 
 mod prelude {
     pub use crate::util::*;
     pub use crate::mat::*;
+    pub use crate::sphere::*;
     pub use rand::{Rng, RngExt};
 }
 

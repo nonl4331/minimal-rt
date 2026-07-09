@@ -12,7 +12,7 @@ impl Naive {
 
         while depth < MAX_DEPTH {
             depth += 1;
-            let sect = get_intersection(&ray);
+            let sect = get_intersection(&ray, world);
 
             if sect.is_none() {
                 rgb += tp * Vec3::ZERO;
@@ -39,6 +39,13 @@ impl Naive {
     }
 }
 
-fn get_intersection(ray: &Ray) -> Intersection {
-    todo!();
+fn get_intersection(ray: &Ray, world: &World) -> Intersection {
+    let mut int = Intersection::NONE;
+    for s in &world.objects {
+        let new_int = s.get_intersection(ray);
+        if int.is_none() || new_int.t <= int.t {
+            int = new_int;
+        }
+    }
+    int
 }
