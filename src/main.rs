@@ -68,7 +68,8 @@ fn main() {
         Vec3::ZERO,
         Vec3::Y,
         20.0,
-        1.0,
+        10.0,
+        0.6,
         WIDTH,
         HEIGHT,
     );
